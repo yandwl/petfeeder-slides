@@ -1,0 +1,187 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a0f;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #f0f0f5;
+}
+
+#webgl {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+#callout {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+#callout.visible {
+  opacity: 1;
+}
+
+#callout line {
+  stroke: rgba(255, 211, 150, 0.85);
+  stroke-width: 1.5;
+}
+
+#callout circle {
+  fill: #ffd396;
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.5;
+}
+
+#overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  z-index: 2;
+}
+
+.slide-panel {
+  max-width: 36rem;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.slide-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-panel h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.slide-panel p {
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(240, 240, 245, 0.72);
+}
+
+.slide-panel ol.logic-steps {
+  margin-top: 0.85rem;
+  padding-left: 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(240, 240, 245, 0.82);
+}
+
+.slide-panel ol.logic-steps li + li {
+  margin-top: 0.45rem;
+}
+
+.slide-panel ol.logic-steps strong {
+  color: #e8ecff;
+  font-weight: 600;
+}
+
+.slide-panel .tag {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  background: rgba(120, 140, 255, 0.15);
+  border: 1px solid rgba(160, 175, 255, 0.25);
+  color: #b8c4ff;
+}
+
+#hint {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.5rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: rgba(240, 240, 245, 0.45);
+}
+
+#hint span:first-child {
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  font-family: ui-monospace, monospace;
+}
+
+#slide-indicator {
+  font-variant-numeric: tabular-nums;
+}
+
+#jump {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: auto;
+}
+
+#jump-input {
+  width: 3.4rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f0f0f5;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+#jump-input:focus {
+  outline: 1px solid rgba(168, 180, 255, 0.55);
+}
+
+#jump button {
+  padding: 0.25rem 0.65rem;
+  border: 1px solid rgba(160, 175, 255, 0.28);
+  border-radius: 6px;
+  background: rgba(120, 140, 255, 0.18);
+  color: #d6dcff;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#jump button:hover {
+  background: rgba(120, 140, 255, 0.3);
+}

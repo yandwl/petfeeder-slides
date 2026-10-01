@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js Slides</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="webgl"></canvas>
+      <svg id="callout" aria-hidden="true">
+        <line x1="0" y1="0" x2="0" y2="0" />
+        <circle cx="0" cy="0" r="6" />
+      </svg>
+      <div id="overlay" aria-live="polite"></div>
+      <nav id="hint">
+        <span>← →</span> change scene
+        <span class="dot" id="slide-indicator"></span>
+        <form id="jump" autocomplete="off">
+          <input
+            id="jump-input"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            aria-label="Slide number"
+          />
+          <button type="submit">Go</button>
+        </form>
+      </nav>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
