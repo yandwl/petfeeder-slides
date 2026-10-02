@@ -243,7 +243,7 @@ export function createDemoSlides(): Slide[] {
       overlayHtml: `
         <span class="tag">Scene 4</span>
         <h1>The feeder</h1>
-        <p>Two hoppers, two bowls. Food on the left, water on the right. Status light on.</p>
+        <p>Hopper, Bowl and dispenser, automatically feeds the cat.</p>
       `,
       camera: (ctx) =>
         ctx.feeder
@@ -266,7 +266,7 @@ export function createDemoSlides(): Slide[] {
       overlayHtml: `
         <span class="tag">Scene 5</span>
         <h1 data-callout-from>Food hopper</h1>
-        <p>Dry food lives here. Gravity feeds the left bowl.</p>
+        <p>Dry food is stored here. It flows down toward the bowl.</p>
       `,
       camera: (ctx) =>
         ctx.feeder
@@ -281,33 +281,8 @@ export function createDemoSlides(): Slide[] {
         if (!ctx.feeder) return;
         mountFeeder(ctx.feeder, ctx.scene);
         setFeederVisible(ctx.feeder, true);
+        resetFeedingLogic(ctx.feeder);
         ctx.callout?.setTarget(ctx.feeder.foodCenter);
-      },
-      onLeave(ctx) {
-        ctx.callout?.setTarget(null);
-      },
-    },
-    {
-      id: "water-hopper",
-      overlayHtml: `
-        <span class="tag">Scene 6</span>
-        <h1 data-callout-from>Water hopper</h1>
-        <p>Fresh water on the right. It fills the other bowl.</p>
-      `,
-      camera: (ctx) =>
-        ctx.feeder
-          ? getFeederCameraView(ctx.feeder, "water")
-          : emptyCameraFallback,
-      onEnter(ctx) {
-        hideParts(ctx);
-        if (ctx.cat) {
-          setCatVisible(ctx.cat, false);
-          resetCatToHome(ctx.cat);
-        }
-        if (!ctx.feeder) return;
-        mountFeeder(ctx.feeder, ctx.scene);
-        setFeederVisible(ctx.feeder, true);
-        ctx.callout?.setTarget(ctx.feeder.waterCenter);
       },
       onLeave(ctx) {
         ctx.callout?.setTarget(null);
@@ -315,49 +290,33 @@ export function createDemoSlides(): Slide[] {
     },
     feederFocusSlide(
       "food-bowl",
-      "Scene 7",
+      "Scene 6",
       "Food bowl",
-      "Gamelle croquettes — le flotteur vérifie qu’elle n’est pas déjà pleine.",
+      "Where each meal lands for the cat.",
       "foodBowl",
       (f) => f.foodBowlCenter
     ),
     feederFocusSlide(
-      "water-bowl",
-      "Scene 8",
-      "Water bowl",
-      "Gamelle d’eau — le niveau est contrôlé avant de relancer la pompe.",
-      "waterBowl",
-      (f) => f.waterBowlCenter
-    ),
-    feederFocusSlide(
       "food-dispenser",
-      "Scene 9",
+      "Scene 7",
       "Food dispenser",
-      "Trémie + servo / doseur : une portion tombe dans la gamelle.",
+      "One portion of food drops from here into the bowl.",
       "foodDispenser",
       (f) => f.foodDispenserCenter
     ),
     feederFocusSlide(
-      "water-dispenser",
-      "Scene 10",
-      "Water dispenser",
-      "Chute d’eau depuis le réservoir, commandée par la pompe.",
-      "waterDispenser",
-      (f) => f.waterDispenserCenter
-    ),
-    feederFocusSlide(
       "feeder-box",
-      "Scene 11",
+      "Scene 8",
       "Enclosure",
-      "Boîtier : PIC, breadboard, alimentation et câblage à l’intérieur.",
+      "The brain of the feeder lives inside, out of sight.",
       "box",
       (f) => f.bodyCenter
     ),
     feedingLogicSlide(
       "logic-timer",
-      "Logic · 1/4",
+      "Logic 1/6",
       "Every 6 hours",
-      "The PIC wakes on the timer — status LED pulses while the cycle starts.",
+      "The PIC wakes on the timer and starts the feeding check. Status LED stays steady.",
       "box",
       "wake",
       (f) => {
@@ -368,30 +327,52 @@ export function createDemoSlides(): Slide[] {
     ),
     feedingLogicSlide(
       "logic-check",
-      "Logic · 2/4",
+      "Logic 2/6",
       "Is the bowl full?",
-      "The float sensor reads the food bowl. Here it’s low — not full yet.",
+      "The ToF sensor measures distance to the kibble surface. Here the bowl is not full yet.",
       "foodBowl",
       "check",
       (f) => f.foodBowlCenter.clone()
     ),
     feedingLogicSlide(
       "logic-dispense",
-      "Logic · 3/4",
+      "Logic 3/6",
       "Dispense one portion",
-      "If the bowl isn’t full, the auger drops a measured portion into the bowl.",
+      "If the bowl isn’t full, the geared motor turns the endless screw to push one portion into the bowl.",
       "foodDispenser",
       "dispense",
       (f) => f.foodDispenserCenter.clone()
     ),
     feedingLogicSlide(
       "logic-restart",
-      "Logic · 4/4",
+      "Logic 4/6",
       "Timer restarts",
       "Whether it fed or skipped, the 6 h countdown starts again for the next check.",
       "overview",
       "restart",
       () => null
+    ),
+    feedingLogicSlide(
+      "logic-hopper-low",
+      "Logic 5/6",
+      "Hopper running low",
+      "The hopper ToF reports a long distance to the kibble surface. Only a small amount of food remains.",
+      "food",
+      "hopper-low-level",
+      (f) => f.foodCenter.clone()
+    ),
+    feedingLogicSlide(
+      "logic-hopper-alert",
+      "Logic 6/6",
+      "Red light pulses",
+      "When the hopper is low, the red status LED pulses until you refill the reservoir.",
+      "box",
+      "hopper-low-alert",
+      (f) => {
+        const p = new THREE.Vector3();
+        f.led.getWorldPosition(p);
+        return p;
+      }
     ),
     ...createPartSlides(),
     {
@@ -399,7 +380,7 @@ export function createDemoSlides(): Slide[] {
       overlayHtml: `
         <span class="tag">Finale</span>
         <h1>Dinner time</h1>
-        <p>Le chat arrive à la machine et mange.</p>
+        <p>The cat walks up to the feeder and eats.</p>
       `,
       camera: (ctx) =>
         ctx.feeder
@@ -439,7 +420,7 @@ export function createDemoSlides(): Slide[] {
       overlayHtml: `
         <span class="tag">Q&amp;A</span>
         <h1>Any questions?</h1>
-        <p>Merci — on passe aux questions.</p>
+        <p>Thanks! Time for your questions.</p>
       `,
       camera: catSlideCamera,
       onEnter(ctx) {

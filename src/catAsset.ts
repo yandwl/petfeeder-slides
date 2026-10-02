@@ -243,7 +243,7 @@ export function startCatWalkIn(asset: CatAsset, offset = 2.8): void {
 }
 
 export function startCatMealWalk(asset: CatAsset): void {
-  const to = new THREE.Vector3(-0.16, asset.homePosition.y, 0.52);
+  const to = new THREE.Vector3(0.04, asset.homePosition.y, 0.52);
   const from = to.clone();
   from.z += 2.45;
 

@@ -7,12 +7,9 @@ export const FOOD_BOWL_PILE_Y = 0.06 + 0.012;
 export type FeederCameraPreset =
   | "overview"
   | "food"
-  | "water"
   | "meal"
   | "foodBowl"
-  | "waterBowl"
   | "foodDispenser"
-  | "waterDispenser"
   | "box";
 
 export type FeederAsset = {
@@ -20,17 +17,13 @@ export type FeederAsset = {
   led: THREE.Mesh;
   ledLight: THREE.PointLight;
   foodHopper: THREE.Mesh;
-  waterHopper: THREE.Mesh;
+  foodHopperFill: THREE.Mesh;
   body: THREE.Mesh;
   foodChute: THREE.Mesh;
-  waterChute: THREE.Mesh;
   frame: { center: THREE.Vector3; size: THREE.Vector3 };
   foodCenter: THREE.Vector3;
-  waterCenter: THREE.Vector3;
   foodBowlCenter: THREE.Vector3;
-  waterBowlCenter: THREE.Vector3;
   foodDispenserCenter: THREE.Vector3;
-  waterDispenserCenter: THREE.Vector3;
   bodyCenter: THREE.Vector3;
   foodBowlInner: THREE.Mesh;
   foodKibbles: THREE.Group;
@@ -54,24 +47,10 @@ const mat = {
     transparent: true,
     opacity: 0.82,
   }),
-  waterHopper: new THREE.MeshStandardMaterial({
-    color: 0x6ec8e6,
-    roughness: 0.08,
-    metalness: 0.15,
-    transparent: true,
-    opacity: 0.55,
-  }),
   foodFill: new THREE.MeshStandardMaterial({
     color: 0xc48a4a,
     roughness: 0.7,
     metalness: 0,
-  }),
-  waterFill: new THREE.MeshStandardMaterial({
-    color: 0x4aa8d4,
-    roughness: 0.05,
-    metalness: 0.2,
-    transparent: true,
-    opacity: 0.72,
   }),
   bowl: new THREE.MeshStandardMaterial({
     color: 0xe8e2da,
@@ -113,78 +92,60 @@ export function createFeeder(): FeederAsset {
   root.name = "feeder";
 
   const baseH = 0.06;
-  const bodyW = 0.52;
+  const bodyW = 0.38;
   const bodyD = 0.26;
   const bodyH = 0.34;
   const hopperH = 0.22;
-  const hopperW = 0.22;
+  const hopperW = 0.24;
   const hopperD = 0.2;
 
-  const base = box(0.62, baseH, 0.5, mat.charcoal, 0, baseH / 2, 0.04);
+  const base = box(0.48, baseH, 0.44, mat.charcoal, 0, baseH / 2, 0.04);
   root.add(base);
 
   const body = box(bodyW, bodyH, bodyD, mat.shell, 0, baseH + bodyH / 2, -0.04);
   body.name = "feeder-body";
   root.add(body);
 
-  const divider = box(0.018, hopperH - 0.02, hopperD + 0.01, mat.charcoal, 0, baseH + bodyH + hopperH / 2, -0.04);
-  root.add(divider);
-
   const foodHopper = box(
     hopperW,
     hopperH,
     hopperD,
     mat.foodHopper,
-    -0.125,
+    0,
     baseH + bodyH + hopperH / 2,
     -0.04
   );
   foodHopper.name = "food-hopper";
   root.add(foodHopper);
 
-  const waterHopper = box(
-    hopperW,
-    hopperH,
-    hopperD,
-    mat.waterHopper,
-    0.125,
-    baseH + bodyH + hopperH / 2,
-    -0.04
-  );
-  waterHopper.name = "water-hopper";
-  root.add(waterHopper);
-
-  const foodFill = box(
+  const foodHopperFill = box(
     hopperW - 0.04,
     hopperH * 0.42,
     hopperD - 0.04,
     mat.foodFill,
-    -0.125,
+    0,
     baseH + bodyH + hopperH * 0.28,
     -0.04
   );
-  root.add(foodFill);
+  foodHopperFill.name = "food-hopper-fill";
+  root.add(foodHopperFill);
 
-  const waterFill = box(
-    hopperW - 0.04,
-    hopperH * 0.55,
-    hopperD - 0.04,
-    mat.waterFill,
-    0.125,
-    baseH + bodyH + hopperH * 0.34,
+  const lid = box(
+    hopperW + 0.02,
+    0.02,
+    hopperD + 0.02,
+    mat.charcoal,
+    0,
+    baseH + bodyH + hopperH + 0.01,
     -0.04
   );
-  root.add(waterFill);
-
-  const lidL = box(hopperW + 0.02, 0.02, hopperD + 0.02, mat.charcoal, -0.125, baseH + bodyH + hopperH + 0.01, -0.04);
-  const lidR = box(hopperW + 0.02, 0.02, hopperD + 0.02, mat.charcoal, 0.125, baseH + bodyH + hopperH + 0.01, -0.04);
-  root.add(lidL, lidR);
+  root.add(lid);
 
   const frontPanel = box(bodyW - 0.04, 0.08, 0.02, mat.charcoal, 0, baseH + 0.2, bodyD / 2 - 0.03);
   root.add(frontPanel);
 
   const led = new THREE.Mesh(new THREE.SphereGeometry(0.014, 16, 16), mat.ledOff);
-  led.position.set(bodyW / 2 + 0.012, baseH + bodyH * 0.62, -0.04);
+  led.position.set(bodyW / 2 + 0.008, baseH + bodyH * 0.62, -0.04);
   root.add(led);
 
   const ledLight = new THREE.PointLight(0xc43a32, 0.22, 0.55, 2);
@@ -196,14 +157,11 @@ export function createFeeder(): FeederAsset {
     bowl: foodBowl,
     inner: foodBowlInner,
     kibbles: foodKibbles,
-  } = addFoodBowl(root, -0.14, 0.18);
-  const waterBowl = addBowl(root, 0.14, 0.18, "water");
+  } = addFoodBowl(root, 0, 0.18);
 
-  const chuteL = box(0.05, 0.06, 0.08, mat.shell, -0.125, baseH + 0.08, 0.1);
+  const chuteL = box(0.05, 0.06, 0.08, mat.shell, 0, baseH + 0.08, 0.1);
   chuteL.name = "food-chute";
-  const chuteR = box(0.05, 0.06, 0.08, mat.shell, 0.125, baseH + 0.08, 0.1);
-  chuteR.name = "water-chute";
-  root.add(chuteL, chuteR);
+  root.add(chuteL);
 
   root.position.set(0, FLOOR_Y, 0);
   root.updateMatrixWorld(true);
@@ -216,16 +174,10 @@ export function createFeeder(): FeederAsset {
 
   const foodCenter = new THREE.Vector3();
   foodHopper.getWorldPosition(foodCenter);
-  const waterCenter = new THREE.Vector3();
-  waterHopper.getWorldPosition(waterCenter);
   const foodBowlCenter = new THREE.Vector3();
   foodBowl.getWorldPosition(foodBowlCenter);
-  const waterBowlCenter = new THREE.Vector3();
-  waterBowl.getWorldPosition(waterBowlCenter);
   const foodDispenserCenter = new THREE.Vector3();
   chuteL.getWorldPosition(foodDispenserCenter);
-  const waterDispenserCenter = new THREE.Vector3();
-  chuteR.getWorldPosition(waterDispenserCenter);
   const bodyCenter = new THREE.Vector3();
   body.getWorldPosition(bodyCenter);
 
@@ -235,17 +187,13 @@ export function createFeeder(): FeederAsset {
     led,
     ledLight,
     foodHopper,
-    waterHopper,
+    foodHopperFill,
     body,
     foodChute: chuteL,
-    waterChute: chuteR,
     frame,
     foodCenter,
-    waterCenter,
     foodBowlCenter,
-    waterBowlCenter,
     foodDispenserCenter,
-    waterDispenserCenter,
     bodyCenter,
     foodBowlInner,
     foodKibbles,
@@ -291,30 +239,6 @@ function addFoodBowl(
   return { bowl, inner, kibbles };
 }
 
-function addBowl(
-  root: THREE.Group,
-  x: number,
-  z: number,
-  kind: "food" | "water"
-): THREE.Mesh {
-  const bowl = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.1, 0.085, 0.045, 28),
-    mat.bowl
-  );
-  bowl.position.set(x, 0.06 + 0.022, z);
-  bowl.name = kind === "food" ? "food-bowl" : "water-bowl";
-  root.add(bowl);
-
-  const inner = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.082, 0.07, 0.03, 28),
-    kind === "food" ? mat.foodFill : mat.waterFill
-  );
-  inner.position.set(x, 0.06 + 0.028, z);
-  root.add(inner);
-
-  return bowl;
-}
-
 function closeupCamera(
   lookAt: THREE.Vector3,
   side: -1 | 1,
@@ -349,38 +273,24 @@ export function getFeederCameraView(
   lookAt: THREE.Vector3;
 } {
   if (preset === "meal") {
-    const lookAt = feeder.frame.center.clone();
-    lookAt.z += 0.12;
-    lookAt.x -= 0.04;
+    const lookAt = feeder.foodBowlCenter.clone();
+    lookAt.y += 0.02;
     return {
-      position: new THREE.Vector3(lookAt.x + 0.72, lookAt.y + 0.28, lookAt.z + 0.95),
+      position: new THREE.Vector3(lookAt.x + 0.58, lookAt.y + 0.26, lookAt.z + 0.88),
       lookAt,
     };
   }
 
-  if (preset === "food" || preset === "water") {
-    const lookAt =
-      preset === "food" ? feeder.foodCenter.clone() : feeder.waterCenter.clone();
-    const side = preset === "food" ? -1 : 1;
-    return closeupCamera(lookAt, side, 0.18, 0.42);
+  if (preset === "food") {
+    return closeupCamera(feeder.foodCenter.clone(), -1, 0.18, 0.42);
   }
 
-  if (preset === "foodBowl" || preset === "waterBowl") {
-    const lookAt =
-      preset === "foodBowl"
-        ? feeder.foodBowlCenter.clone()
-        : feeder.waterBowlCenter.clone();
-    const side = preset === "foodBowl" ? -1 : 1;
-    return closeupCamera(lookAt, side, 0.12, 0.32);
+  if (preset === "foodBowl") {
+    return closeupCamera(feeder.foodBowlCenter.clone(), -1, 0.12, 0.32);
   }
 
-  if (preset === "foodDispenser" || preset === "waterDispenser") {
-    const lookAt =
-      preset === "foodDispenser"
-        ? feeder.foodDispenserCenter.clone()
-        : feeder.waterDispenserCenter.clone();
-    const side = preset === "foodDispenser" ? -1 : 1;
-    return closeupCamera(lookAt, side, 0.1, 0.36);
+  if (preset === "foodDispenser") {
+    return closeupCamera(feeder.foodDispenserCenter.clone(), -1, 0.1, 0.36);
   }
 
   if (preset === "box") {

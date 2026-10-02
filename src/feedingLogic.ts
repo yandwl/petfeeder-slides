@@ -6,11 +6,14 @@ export type FeedingLogicMode =
   | "wake"
   | "check"
   | "dispense"
-  | "restart";
+  | "restart"
+  | "hopper-low-level"
+  | "hopper-low-alert";
 
 let mode: FeedingLogicMode = "idle";
 let elapsed = 0;
 let bowlFill = 0.32;
+let hopperFill = 0.85;
 let dispenseStarted = false;
 
 type FallingKibble = {
@@ -46,7 +49,24 @@ export function resetFeedingLogic(feeder?: FeederAsset): void {
   if (feeder) {
     feeder.foodChute.rotation.x = 0;
     applyBowlFill(feeder, 0.32);
+    applyHopperFill(feeder, 0.85);
   }
+}
+
+function setSteadyStatusLed(feeder: FeederAsset): void {
+  const led = ledMaterial(feeder);
+  led.emissiveIntensity = 0.55;
+  feeder.ledLight.intensity = 0.16;
+}
+
+export function applyHopperFill(feeder: FeederAsset, level: number): void {
+  hopperFill = THREE.MathUtils.clamp(level, 0.06, 1);
+  const mesh = feeder.foodHopperFill;
+  if (mesh.userData.hopperBaseY === undefined) {
+    mesh.userData.hopperBaseY = mesh.position.y;
+  }
+  mesh.scale.y = hopperFill;
+  mesh.position.y = mesh.userData.hopperBaseY - (1 - hopperFill) * 0.05;
 }
 
 export function setFeedingLogicMode(next: FeedingLogicMode, feeder?: FeederAsset): void {
@@ -62,6 +82,14 @@ export function setFeedingLogicMode(next: FeedingLogicMode, feeder?: FeederAsset
   if (!feeder) return;
   if (next === "check") applyBowlFill(feeder, 0.28);
   if (next === "restart") applyBowlFill(feeder, 0.78);
+  if (next === "hopper-low-level" || next === "hopper-low-alert") {
+    applyHopperFill(feeder, 0.14);
+  }
+  if (next === "hopper-low-level") setSteadyStatusLed(feeder);
+  if (next === "wake" || next === "check" || next === "dispense" || next === "restart") {
+    applyHopperFill(feeder, 0.85);
+    setSteadyStatusLed(feeder);
+  }
 }
 
 export function applyBowlFill(feeder: FeederAsset, level: number): void {
@@ -122,10 +150,22 @@ export function updateFeedingLogic(feeder: FeederAsset, dt: number): boolean {
   elapsed += dt;
   const led = ledMaterial(feeder);
 
-  if (mode === "wake") {
-    const pulse = 0.5 + Math.sin(elapsed * 9) * 0.45;
+  if (mode === "hopper-low-level") {
+    setSteadyStatusLed(feeder);
+    applyHopperFill(feeder, 0.14);
+    return true;
+  }
+
+  if (mode === "hopper-low-alert") {
+    const pulse = 0.45 + Math.sin(elapsed * 7.5) * 0.42;
     led.emissiveIntensity = pulse;
-    feeder.ledLight.intensity = 0.08 + pulse * 0.35;
+    feeder.ledLight.intensity = 0.1 + pulse * 0.32;
+    applyHopperFill(feeder, 0.14);
+    return true;
+  }
+
+  if (mode === "wake") {
+    setSteadyStatusLed(feeder);
     return true;
   }
 
@@ -136,8 +176,7 @@ export function updateFeedingLogic(feeder: FeederAsset, dt: number): boolean {
     innerMat.emissiveIntensity = scan;
     feeder.foodBowlInner.scale.y =
       0.3 + 0.08 * Math.sin(elapsed * 4) + bowlFill * 0.35;
-    led.emissiveIntensity = 0.45 + Math.sin(elapsed * 2) * 0.1;
-    feeder.ledLight.intensity = 0.14;
+    setSteadyStatusLed(feeder);
     return true;
   }
 
@@ -160,16 +199,13 @@ export function updateFeedingLogic(feeder: FeederAsset, dt: number): boolean {
       applyBowlFill(feeder, 0.72);
     }
 
-    led.emissiveIntensity = 0.85;
-    feeder.ledLight.intensity = 0.28;
+    setSteadyStatusLed(feeder);
     feeder.foodChute.rotation.x = Math.sin(elapsed * 12) * 0.04;
     return true;
   }
 
   if (mode === "restart") {
-    const pulse = 0.4 + Math.sin(elapsed * 1.4) * 0.12;
-    led.emissiveIntensity = pulse;
-    feeder.ledLight.intensity = 0.1 + pulse * 0.12;
+    setSteadyStatusLed(feeder);
     applyBowlFill(feeder, 0.78);
     return true;
   }
