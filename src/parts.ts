@@ -37,10 +37,8 @@ const M = {
   amber: new THREE.MeshStandardMaterial({ color: 0xd4a574, roughness: 0.35, metalness: 0.05, transparent: true, opacity: 0.85 }),
   kibble: new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.8, metalness: 0 }),
   red: new THREE.MeshStandardMaterial({ color: 0xc43a32, roughness: 0.35, metalness: 0.1, emissive: 0x7a1814, emissiveIntensity: 0.35 }),
-  green: new THREE.MeshStandardMaterial({ color: 0x3cbf6e, roughness: 0.35, metalness: 0.1, emissive: 0x145c2e, emissiveIntensity: 0.35 }),
   blue: new THREE.MeshStandardMaterial({ color: 0x3d6fd4, roughness: 0.4, metalness: 0.08 }),
   orange: new THREE.MeshStandardMaterial({ color: 0xe07a2f, roughness: 0.45, metalness: 0.05 }),
-  lcd: new THREE.MeshStandardMaterial({ color: 0x6fd36a, roughness: 0.2, metalness: 0.05, emissive: 0x1d4a1a, emissiveIntensity: 0.4 }),
   white: new THREE.MeshStandardMaterial({ color: 0xf2f0ea, roughness: 0.35, metalness: 0.04 }),
   rubber: new THREE.MeshStandardMaterial({ color: 0x222226, roughness: 0.85, metalness: 0 }),
 };
@@ -69,15 +67,6 @@ function pic(): THREE.Group {
     pins.push(mesh(new THREE.BoxGeometry(0.006, 0.016, 0.004), M.silver, x, 0.008, -0.03));
   }
   return group("pic", pins);
-}
-
-function programmer(): THREE.Group {
-  return group("programmer", [
-    mesh(new THREE.BoxGeometry(0.16, 0.03, 0.07), M.blue, 0, 0.025, 0),
-    mesh(new THREE.BoxGeometry(0.04, 0.012, 0.03), M.silver, -0.095, 0.02, 0),
-    mesh(new THREE.BoxGeometry(0.05, 0.014, 0.028), M.charcoal, 0.07, 0.028, 0),
-    mesh(new THREE.BoxGeometry(0.03, 0.006, 0.02), M.gold, 0.1, 0.02, 0),
-  ]);
 }
 
 function breadboard(): THREE.Group {
@@ -184,32 +173,12 @@ function foodBowl(): THREE.Group {
   return group("food-bowl", kids);
 }
 
-function mosfet(): THREE.Group {
-  return group("mosfet", [
-    mesh(new THREE.BoxGeometry(0.08, 0.01, 0.05), M.pcb, 0, 0.012, 0),
-    mesh(new THREE.BoxGeometry(0.028, 0.022, 0.008), M.black, 0, 0.028, 0),
-    mesh(new THREE.BoxGeometry(0.02, 0.028, 0.002), M.silver, 0, 0.04, -0.008),
-    mesh(new THREE.BoxGeometry(0.004, 0.02, 0.004), M.silver, -0.01, 0.006, 0.02),
-    mesh(new THREE.BoxGeometry(0.004, 0.02, 0.004), M.silver, 0, 0.006, 0.02),
-    mesh(new THREE.BoxGeometry(0.004, 0.02, 0.004), M.silver, 0.01, 0.006, 0.02),
-  ]);
-}
-
 function led(mat: THREE.Material, name: string): THREE.Group {
   return group(name, [
     mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.016, 12), mat, 0, 0.028, 0),
     mesh(new THREE.SphereGeometry(0.012, 12, 10, 0, Math.PI * 2, 0, Math.PI / 2), mat, 0, 0.036, 0),
     mesh(new THREE.BoxGeometry(0.003, 0.02, 0.003), M.silver, -0.005, 0.01, 0),
     mesh(new THREE.BoxGeometry(0.003, 0.014, 0.003), M.silver, 0.005, 0.007, 0),
-  ]);
-}
-
-function lcd(): THREE.Group {
-  return group("lcd", [
-    mesh(new THREE.BoxGeometry(0.16, 0.02, 0.07), M.pcbDark, 0, 0.016, 0),
-    mesh(new THREE.BoxGeometry(0.13, 0.008, 0.045), M.charcoal, 0, 0.028, 0),
-    mesh(new THREE.BoxGeometry(0.11, 0.004, 0.032), M.lcd, 0, 0.033, 0),
-    mesh(new THREE.BoxGeometry(0.12, 0.01, 0.012), M.gold, 0, 0.01, 0.045),
   ]);
 }
 
@@ -228,37 +197,6 @@ function resistors(): THREE.Group {
   return group("resistors", kids);
 }
 
-function diodes(): THREE.Group {
-  return group("diodes", [
-    mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.036, 10), M.black, 0, 0.016, 0),
-    mesh(new THREE.CylinderGeometry(0.0085, 0.0085, 0.006, 10), M.orange, 0.01, 0.016, 0),
-    mesh(new THREE.CylinderGeometry(0.002, 0.002, 0.08, 6), M.silver, 0, 0.016, 0),
-  ].map((m, i) => {
-    if (i < 3) m.rotation.z = Math.PI / 2;
-    return m;
-  }));
-}
-
-function button(): THREE.Group {
-  return group("button", [
-    mesh(new THREE.BoxGeometry(0.04, 0.01, 0.04), M.charcoal, 0, 0.01, 0),
-    mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.012, 14), M.red, 0, 0.02, 0),
-  ]);
-}
-
-function cables(): THREE.Group {
-  const kids: THREE.Object3D[] = [];
-  for (let i = 0; i < 3; i++) {
-    const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-0.07, 0.01, -0.02 + i * 0.02),
-      new THREE.Vector3(-0.01, 0.03 + i * 0.01, 0.01),
-      new THREE.Vector3(0.07, 0.015, -0.01 + i * 0.015),
-    ]);
-    kids.push(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.005, 6, false), i === 1 ? M.red : M.rubber));
-  }
-  return group("cables", kids);
-}
-
 function housing(): THREE.Group {
   return group("housing", [
     mesh(new THREE.BoxGeometry(0.16, 0.008, 0.1), M.plastic, 0, 0.02, 0),
@@ -269,7 +207,6 @@ function housing(): THREE.Group {
 
 const BUILDERS: Record<string, () => THREE.Group> = {
   pic,
-  programmer,
   breadboard,
   dupont,
   psu,
@@ -279,58 +216,45 @@ const BUILDERS: Record<string, () => THREE.Group> = {
   "food-bowl": foodBowl,
   "tof-bowl": () => tofModule("tof-bowl"),
   "tof-hopper": () => tofModule("tof-hopper"),
-  mosfet,
   "led-red": () => led(M.red, "led-red"),
-  "led-green": () => led(M.green, "led-green"),
-  lcd,
   resistors,
-  diodes,
-  button,
-  cables,
   housing,
 };
 
 const CATALOG: PartDef[] = [
-  { id: "pic", category: "Control", title: "PIC", blurb: "Course microcontroller. Drives sensors, motors, and display." },
-  { id: "programmer", category: "Control", title: "Programmer", blurb: "PIC-compatible debugger to flash and test firmware." },
-  { id: "breadboard", category: "Control", title: "Breadboard", blurb: "Solderless prototyping for the control circuit." },
-  { id: "dupont", category: "Control", title: "Dupont wires", blurb: "Male/female jumpers between the PIC, modules, and breadboard." },
-  { id: "psu", category: "Control", title: "Power supply", blurb: "5 V logic plus motor power for the PIC and geared motor." },
-  { id: "food-res", category: "Food", title: "Kibble hopper", blurb: "Stores dry food above the chute; fill level monitored by ToF." },
+  { id: "pic", category: "Control", title: "PIC", blurb: "The brain behind the machine." },
+  { id: "breadboard", category: "Control", title: "Breadboard", blurb: "To build the circuit." },
+  { id: "dupont", category: "Control", title: "Dupont wires", blurb: "To connect the parts." },
+  { id: "psu", category: "Control", title: "Power supply", blurb: "To power the feeder." },
+  { id: "food-res", category: "Food", title: "Hopper", blurb: "To store the food." },
   {
     id: "endless-screw",
     category: "Food",
     title: "Endless screw (3D printed)",
-    blurb: "3D printed Archimedes screw that pushes kibble toward the bowl.",
+    blurb: "To push the food to the bowl.",
   },
   {
     id: "geared-motor",
     category: "Food",
     title: "Geared motor",
-    blurb: "DC gearmotor that turns the endless screw to dose one portion.",
+    blurb: "To turn the endless screw.",
   },
-  { id: "food-bowl", category: "Food", title: "Food bowl", blurb: "Bowl where each portion lands." },
+  { id: "food-bowl", category: "Food", title: "Food bowl", blurb: "Where the food lands." },
   {
     id: "tof-hopper",
     category: "Food",
-    title: "ToF sensor (hopper)",
-    blurb: "Time-of-Flight: measures distance in the reservoir to detect low stock.",
+    title: "Distance sensor (hopper)",
+    blurb: "To check if the hopper is low.",
   },
   {
     id: "tof-bowl",
     category: "Food",
-    title: "ToF sensor (bowl)",
-    blurb: "Time-of-Flight: measures distance to the kibble surface to tell if the bowl is full.",
+    title: "Distance sensor (bowl)",
+    blurb: "To check if the bowl is full.",
   },
-  { id: "mosfet", category: "Food", title: "MOSFET / relay", blurb: "Switches the geared motor; the PIC does not drive the motor directly." },
-  { id: "led-red", category: "Display", title: "Red LED", blurb: "Blinks when ToF detects low hopper fill." },
-  { id: "led-green", category: "Display", title: "Green LED", blurb: "Normal operation indicator." },
-  { id: "lcd", category: "Display", title: "LCD / OLED", blurb: "Status messages: kibble OK, hopper empty, next meal, and so on." },
-  { id: "resistors", category: "Misc", title: "Resistors", blurb: "Limit LED current and bias signal lines." },
-  { id: "diodes", category: "Misc", title: "Diodes", blurb: "Protect against inductive kickback from the geared motor." },
-  { id: "button", category: "Misc", title: "Push button", blurb: "Manual feed or settings on the enclosure." },
-  { id: "cables", category: "Misc", title: "Cables", blurb: "Wiring and connectors for the full build." },
-  { id: "housing", category: "Misc", title: "Enclosure", blurb: "Enclosure panels, screws, and structure." },
+  { id: "led-red", category: "Display", title: "Red LED", blurb: "Warns when the hopper is low." },
+  { id: "resistors", category: "Misc", title: "Resistors", blurb: "For the circuit." },
+  { id: "housing", category: "Misc", title: "Enclosure", blurb: "To hold everything together." },
 ];
 
 function sitOnFloor(model: THREE.Group): void {
@@ -447,7 +371,6 @@ export function createPartSlides(): Slide[] {
   const overview: Slide = {
     id: "bom-overview",
     overlayHtml: `
-      <span class="tag">Hardware</span>
       <h1>Bill of materials</h1>
       <p>The full kit, grouped by function. Press right arrow for one part at a time.</p>
     `,
@@ -465,7 +388,6 @@ export function createPartSlides(): Slide[] {
   const details: Slide[] = CATALOG.map((def) => ({
     id: `part-${def.id}`,
     overlayHtml: `
-      <span class="tag">${def.category}</span>
       <h1 data-callout-from>${def.title}</h1>
       <p>${def.blurb}</p>
     `,

@@ -1,16 +1,13 @@
 import * as THREE from "three";
 import {
   getCatCameraView,
-  clearCatQAState,
   isCatEating,
   mountCat,
   playCatClip,
   resetCatToHome,
   setCatVisible,
-  startCatQAShow,
   startCatMealWalk,
   startCatWalkIn,
-  updateCatQAHandoff,
 } from "./catAsset";
 import {
   getFeederCameraView,
@@ -26,10 +23,6 @@ import {
   setFeedingLogicMode,
   type FeedingLogicMode,
 } from "./feedingLogic";
-import {
-  mountQuestionMarks,
-  setQuestionMarksVisible,
-} from "./questionMarks";
 import type { Slide, SlideContext } from "./types";
 
 function hideParts(ctx: { parts?: import("./parts").PartsKit }): void {
@@ -103,7 +96,6 @@ function prepareFeederOnly(ctx: SlideContext): boolean {
 
 function feedingLogicSlide(
   id: string,
-  step: string,
   title: string,
   blurb: string,
   preset: FeederCameraPreset,
@@ -114,7 +106,6 @@ function feedingLogicSlide(
   return {
     id,
     overlayHtml: `
-      <span class="tag">${step}</span>
       <h1>${title}</h1>
       <p>${blurb}</p>
     `,
@@ -139,7 +130,6 @@ function feedingLogicSlide(
 
 function feederFocusSlide(
   id: string,
-  tag: string,
   title: string,
   blurb: string,
   preset: FeederCameraPreset,
@@ -148,7 +138,6 @@ function feederFocusSlide(
   return {
     id,
     overlayHtml: `
-      <span class="tag">${tag}</span>
       <h1 data-callout-from>${title}</h1>
       <p>${blurb}</p>
     `,
@@ -175,7 +164,14 @@ export function createDemoSlides(): Slide[] {
   return [
     {
       id: "blank",
-      overlayHtml: "",
+      overlayHtml: `
+        <ul class="authors">
+          <li>Nessim Boustani</li>
+          <li>Zackaria Marzouki</li>
+          <li>Yanis Dewel</li>
+          <li>Adam Chelkha</li>
+        </ul>
+      `,
       camera: catSlideCamera,
       onEnter(ctx) {
         hideParts(ctx);
@@ -189,7 +185,6 @@ export function createDemoSlides(): Slide[] {
     {
       id: "cat-arrival",
       overlayHtml: `
-        <span class="tag">Scene 2</span>
         <h1>Hello, cat</h1>
         <p>We want to make a project with cats.</p>
       `,
@@ -215,7 +210,6 @@ export function createDemoSlides(): Slide[] {
     {
       id: "cat-angry",
       overlayHtml: `
-        <span class="tag">Scene 3</span>
         <h1>I'm very hungry</h1>
         <p>Where’s dinner?</p>
       `,
@@ -241,7 +235,6 @@ export function createDemoSlides(): Slide[] {
     {
       id: "feeder",
       overlayHtml: `
-        <span class="tag">Scene 4</span>
         <h1>The feeder</h1>
         <p>Hopper, Bowl and dispenser, automatically feeds the cat.</p>
       `,
@@ -264,7 +257,6 @@ export function createDemoSlides(): Slide[] {
     {
       id: "food-hopper",
       overlayHtml: `
-        <span class="tag">Scene 5</span>
         <h1 data-callout-from>Food hopper</h1>
         <p>Dry food is stored here. It flows down toward the bowl.</p>
       `,
@@ -290,7 +282,6 @@ export function createDemoSlides(): Slide[] {
     },
     feederFocusSlide(
       "food-bowl",
-      "Scene 6",
       "Food bowl",
       "Where each meal lands for the cat.",
       "foodBowl",
@@ -298,7 +289,6 @@ export function createDemoSlides(): Slide[] {
     ),
     feederFocusSlide(
       "food-dispenser",
-      "Scene 7",
       "Food dispenser",
       "One portion of food drops from here into the bowl.",
       "foodDispenser",
@@ -306,7 +296,6 @@ export function createDemoSlides(): Slide[] {
     ),
     feederFocusSlide(
       "feeder-box",
-      "Scene 8",
       "Enclosure",
       "The brain of the feeder lives inside, out of sight.",
       "box",
@@ -314,9 +303,8 @@ export function createDemoSlides(): Slide[] {
     ),
     feedingLogicSlide(
       "logic-timer",
-      "Logic 1/6",
       "Every 6 hours",
-      "The PIC wakes on the timer and starts the feeding check. Status LED stays steady.",
+      "The machine wakes on the timer and starts the feeding check.",
       "box",
       "wake",
       (f) => {
@@ -327,16 +315,14 @@ export function createDemoSlides(): Slide[] {
     ),
     feedingLogicSlide(
       "logic-check",
-      "Logic 2/6",
       "Is the bowl full?",
-      "The ToF sensor measures distance to the kibble surface. Here the bowl is not full yet.",
+      "A distance sensor measures the level of dry food. Here the bowl is not full yet.",
       "foodBowl",
       "check",
       (f) => f.foodBowlCenter.clone()
     ),
     feedingLogicSlide(
       "logic-dispense",
-      "Logic 3/6",
       "Dispense one portion",
       "If the bowl isn’t full, the geared motor turns the endless screw to push one portion into the bowl.",
       "foodDispenser",
@@ -345,7 +331,6 @@ export function createDemoSlides(): Slide[] {
     ),
     feedingLogicSlide(
       "logic-restart",
-      "Logic 4/6",
       "Timer restarts",
       "Whether it fed or skipped, the 6 h countdown starts again for the next check.",
       "overview",
@@ -354,16 +339,14 @@ export function createDemoSlides(): Slide[] {
     ),
     feedingLogicSlide(
       "logic-hopper-low",
-      "Logic 5/6",
       "Hopper running low",
-      "The hopper ToF reports a long distance to the kibble surface. Only a small amount of food remains.",
+      "A distance sensor measures the level of dry food. Only a small amount remains.",
       "food",
       "hopper-low-level",
       (f) => f.foodCenter.clone()
     ),
     feedingLogicSlide(
       "logic-hopper-alert",
-      "Logic 6/6",
       "Red light pulses",
       "When the hopper is low, the red status LED pulses until you refill the reservoir.",
       "box",
@@ -378,7 +361,6 @@ export function createDemoSlides(): Slide[] {
     {
       id: "finale",
       overlayHtml: `
-        <span class="tag">Finale</span>
         <h1>Dinner time</h1>
         <p>The cat walks up to the feeder and eats.</p>
       `,
@@ -413,42 +395,6 @@ export function createDemoSlides(): Slide[] {
       },
       update(ctx, dt) {
         updateFinaleOrbit(ctx, dt);
-      },
-    },
-    {
-      id: "qa",
-      overlayHtml: `
-        <span class="tag">Q&amp;A</span>
-        <h1>Any questions?</h1>
-        <p>Thanks! Time for your questions.</p>
-      `,
-      camera: catSlideCamera,
-      onEnter(ctx) {
-        hideParts(ctx);
-        ctx.callout?.setTarget(null);
-        if (ctx.feeder) setFeederVisible(ctx.feeder, false);
-        if (ctx.questionMarks) {
-          mountQuestionMarks(ctx.questionMarks, ctx.scene);
-          setQuestionMarksVisible(ctx.questionMarks, true);
-        }
-        if (!ctx.cat) return;
-        mountCat(ctx.cat, ctx.scene);
-        resetCatToHome(ctx.cat);
-        setCatVisible(ctx.cat, false);
-      },
-      onArrive(ctx) {
-        if (!ctx.cat) return;
-        startCatQAShow(ctx.cat);
-      },
-      onLeave(ctx) {
-        if (ctx.questionMarks) setQuestionMarksVisible(ctx.questionMarks, false);
-        if (!ctx.cat) return;
-        clearCatQAState(ctx.cat);
-        setCatVisible(ctx.cat, false);
-        resetCatToHome(ctx.cat);
-      },
-      update(ctx) {
-        if (ctx.cat?.root.visible) updateCatQAHandoff(ctx.cat);
       },
     },
   ];
